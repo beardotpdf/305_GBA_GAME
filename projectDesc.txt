@@ -4,4 +4,8 @@ Team Members:
   Sean Foley
 
 Idea:
-Recreate Lunar Lander (Atari), the player controls the lunar lander and attempts to guide it onto the lunar surface. The player starts falling out of view of the surface and will see the ground approach. To control descent the player activates the primary thruster which pushes you up/slows your fall and RCS thrusters that move you laterally. All thrusters cost fuel and the player is scored over 5 landings, 0 points for hitting the ground too fast/hitting a wall, score additional points are awarded for amount of fuel left at the end.
+Recreate Lunar Lander (Atari), the player controls the lunar lander and attempts to guide it onto the lunar surface. The player starts
+falling out of view of the surface and will see the ground approach. To control descent the player activates the primary thruster which
+pushes you up/slows your fall and RCS thrusters that move you laterally. All thrusters cost fuel and the player is scored over 5
+landings, 0 points for hitting the ground too fast/hitting a wall, score additional points are awarded for amount of fuel left at the
+end.
