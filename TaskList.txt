@@ -10,9 +10,14 @@ mark 'x ' before task to signify completion
     Load Sprites
     Parallax Star backgrounds x2
     Update Sprites on input
-
+  
   Movement:
     Falling down
     Moving Left/Right - from input
     Falling accelerates from gravity
     Upwards force (main thrust, slow fall) - from input
+
+  Collision:
+    Lander stop moving on flat surface, flat = tile of ground under whole tile (both feet + 1 pixel each side)
+    Lander sprite dissapear if land too hard, crash
+    Lander sprite dissapear if collide horizontally, crash
