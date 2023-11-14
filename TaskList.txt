@@ -1,0 +1,18 @@
+TASKS:
+mark 'x ' before task to signify completion
+
+  Graphics:
+    Create background
+    Create Sprites
+    Convert Background to .h
+    Convert Sprites to .h
+    Load Backgrounds - ground xWrap, border for yScroll when lowest ground point in view
+    Load Sprites
+    Parallax Star backgrounds x2
+    Update Sprites on input
+
+  Movement:
+    Falling down
+    Moving Left/Right - from input
+    Falling accelerates from gravity
+    Upwards force (main thrust, slow fall) - from input
