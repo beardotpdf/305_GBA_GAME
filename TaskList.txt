@@ -2,11 +2,11 @@ TASKS:
 mark 'x ' before task to signify completion
 
   Graphics:
-    Create background
+    Create backgrounds
     Create Sprites
     Convert Background to .h
     Convert Sprites to .h
-    Load Backgrounds - ground xWrap, border for yScroll when lowest ground point in view
+    Load Backgrounds - stars xWrap and yWrap, ground xWrap, border for yScroll when lowest ground point in view
     Load Sprites
     Parallax Star backgrounds x2
     Update Sprites on input
