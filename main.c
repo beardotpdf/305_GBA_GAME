@@ -1,11 +1,17 @@
+#include "stars.h"
+#include "stars2.h"
+#include "sky.h"
+#include "ground.h"
+#include "LunarLanderTiles.h"
+
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 160
 
 #define MODE0 0x00
 #define BG0_ENABLE 0x100
 #define BG1_ENABLE 0x200
-#define BG2_ENABLE 0x300
-#define BG3_ENABLE 0x400
+#define BG2_ENABLE 0x400
+#define BG3_ENABLE 0x800
 
 #define SPRITE_MAP_2D 0x0
 #define SPRITE_MAP_1D 0x40
@@ -43,6 +49,9 @@ volatile unsigned short* scanline_counter = (volatile unsigned short*) 0x4000006
 #define BUTTON_A (1 << 0)
 #define BUTTON_RIGHT (1 << 4)
 #define BUTTON_LEFT (1 << 5)
+// Buttons used for testing background scroll
+#define BUTTON_UP (1 << 6)
+#define BUTTON_DOWN (1 << 7)
 
 // Wait for screen to be drawn
 void wait_vblank() {
@@ -205,6 +214,67 @@ void sprite_set_offset(struct Sprite* sprite, int offset) {
 void setup_sprite_image() {
 }
 
+// Function to set up background for the game
+void setup_background() {
+
+    for (int i = 0; i < PALETTE_SIZE; i++) {
+        bg_palette[i] = LunarLanderTiles_palette[i];
+    }
+
+    volatile unsigned short* dest = char_block(0);
+    unsigned short* image = (unsigned short*) LunarLanderTiles_data;
+    for (int i = 0; i < ((LunarLanderTiles_width * LunarLanderTiles_height) / 2); i++) {
+        dest[i] = image[i];
+    }
+
+    *bg0_control = 0 |    /* priority, 0 is highest, 3 is lowest */
+        (0 << 2)  |       /* the char block the image data is stored in */
+        (0 << 6)  |       /* the mosaic flag */
+        (1 << 7)  |       /* color mode, 0 is 16 colors, 1 is 256 colors */
+        (16 << 8) |       /* the screen block the tile data is stored in */
+        (1 << 13) |       /* wrapping flag */
+        (0 << 14);        /* bg size, 0 is 256x256 */
+    *bg1_control = 1 |    /* priority, 0 is highest, 3 is lowest */
+        (0 << 2)  |       /* the char block the image data is stored in */
+        (0 << 6)  |       /* the mosaic flag */
+        (1 << 7)  |       /* color mode, 0 is 16 colors, 1 is 256 colors */
+        (17 << 8) |       /* the screen block the tile data is stored in */
+        (1 << 13) |       /* wrapping flag */
+        (0 << 14);        /* bg size, 0 is 256x256 */
+    *bg2_control = 2 |    /* priority, 0 is highest, 3 is lowest */
+        (0 << 2)  |       /* the char block the image data is stored in */
+        (0 << 6)  |       /* the mosaic flag */
+        (1 << 7)  |       /* color mode, 0 is 16 colors, 1 is 256 colors */
+        (18 << 8) |       /* the screen block the tile data is stored in */
+        (1 << 13) |       /* wrapping flag */
+        (0 << 14);        /* bg size, 0 is 256x256 */
+    *bg3_control = 3 |    /* priority, 0 is highest, 3 is lowest */
+        (0 << 2)  |       /* the char block the image data is stored in */
+        (0 << 6)  |       /* the mosaic flag */
+        (1 << 7)  |       /* color mode, 0 is 16 colors, 1 is 256 colors */
+        (19 << 8) |       /* the screen block the tile data is stored in */
+        (1 << 13) |       /* wrapping flag */
+        (0 << 14);        /* bg size, 0 is 256x256 */
+
+    dest = screen_block(16);
+    for (int i = 0; i < (ground_width * ground_height); i++) {
+        dest[i] = ground[i];
+    }
+    dest = screen_block(17);
+    for (int i = 0; i < (stars_width * stars_height); i++) {
+        dest[i] = stars[i];
+    }
+    dest = screen_block(18);
+    for (int i = 0; i < (stars2_width * stars2_height); i++) {
+        dest[i] = stars2[i];
+    }
+    dest = screen_block(19);
+    for (int i = 0; i < (sky_width * sky_height); i++) {
+        dest[i] = sky[i];
+    }
+}
+
+
 // Struct for the lander
 struct Lander {
     int x, y;
@@ -217,7 +287,7 @@ struct Lander {
 // struct for keeping track of the score
 struct Score {
     int points;
-}
+};
 
 // Initialize lander
 void lander_init(struct Lander* lander) {
@@ -225,14 +295,36 @@ void lander_init(struct Lander* lander) {
 
 
 int main() {
-    *display_control = MODE0 | BG0_ENABLE | SPRITE_ENABLE | SPRITE_MAP_1D;
+    *display_control = MODE0 | BG0_ENABLE | BG1_ENABLE | BG2_ENABLE | BG3_ENABLE | SPRITE_ENABLE | SPRITE_MAP_1D;
 
     struct Lander lander;
     lander_init(&lander);
 
     int xscroll = 0;
-
+    int yscroll = 0;
+    setup_background();
     while (1) {
+	// Button controls to test background scroll
+	if (button_pressed(BUTTON_DOWN)) {
+	    yscroll++;
+	}
+	if (button_pressed(BUTTON_UP)) {
+	    yscroll--;
+	}
+	if (button_pressed(BUTTON_RIGHT)) {
+	    xscroll++;
+	}
+	if (button_pressed(BUTTON_LEFT)) {
+	    xscroll--;
+	}
+	wait_vblank();
+	*bg0_x_scroll = xscroll / 128;
+	*bg0_y_scroll = yscroll / 128;
+	*bg1_x_scroll = xscroll / 512;
+	*bg1_y_scroll = yscroll / 512;
+	*bg2_x_scroll = xscroll / 768;
+	*bg2_y_scroll = yscroll / 768;
     }
+    delay(100);
 }
 
