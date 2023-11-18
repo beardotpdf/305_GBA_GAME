@@ -4,6 +4,9 @@
 #include "ground.h"
 #include "LunarLanderTiles.h"
 
+// Lander h file is currently a placeholder, might be changed
+#include "lander.h"
+
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 160
 
@@ -212,6 +215,9 @@ void sprite_set_offset(struct Sprite* sprite, int offset) {
 
 // Set up sprite image and the palette
 void setup_sprite_image() {
+    memcpy16_dma((unsigned short*) sprite_palette, (unsigned short*) lander_palette, PALETTE_SIZE);
+
+    memcpy16_dma((unsigned short*) sprite_image_memory, (unsigned short*) lander_data, (lander_width * lander_height) / 2);
 }
 
 // Function to set up background for the game
@@ -277,33 +283,71 @@ void setup_background() {
 
 // Struct for the lander
 struct Lander {
+    struct Sprite* sprite;
     int x, y;
     int yvel;
     int gravity;
     int landed;
     int fuel;
-};
-
-// struct for keeping track of the score
-struct Score {
-    int points;
+    int frame;
 };
 
 // Initialize lander
 void lander_init(struct Lander* lander) {
+    lander->x = 120;
+    lander->y = 20;
+    lander->yvel = 0;
+    lander->gravity = 20;
+    lander->landed = 0;
+    lander->fuel = 1000;
+    lander->frame = 0;
+    // Initialize sprite of lander and its properties
+    /*
+     * Lander sprite is currently a placeholder and is a 8 by 8 size, if lander sprite is changed to something bigger 
+     * change the SIZE_8_8 value in the third argument to whatever the new sprite size is.
+     */
+    lander->sprite = sprite_init(lander->x, lander->y, SIZE_8_8, 0, 0, lander->frame, 0);
 }
 
+// Moves the lander struct up
+void lander_ascend(struct Lander* lander) {
+    if (!lander->landed) {
+	lander->yvel += -40;
+    }
+}
+
+// Updates the lander
+void lander_update(struct Lander* lander, int* yscroll) {
+    /* Add code to stop scrolling background and start updating lander position if near the ground */
+    // Update position of lander
+    if (!lander->landed) {
+        *yscroll += (lander->yvel >> 8);
+	lander->yvel += lander->gravity;
+    }
+
+    // Set lander sprite on the screen position
+    sprite_position(lander->sprite, lander->x, lander->y);
+}
 
 int main() {
     *display_control = MODE0 | BG0_ENABLE | BG1_ENABLE | BG2_ENABLE | BG3_ENABLE | SPRITE_ENABLE | SPRITE_MAP_1D;
+    // Set up background and the sprites
+    setup_background();
+    setup_sprite_image();
+    sprite_clear();
 
+    // Initialize lander
     struct Lander lander;
     lander_init(&lander);
 
-    int xscroll = 0;
-    int yscroll = 0;
-    setup_background();
+    // Set initial scroll to lander x and y position
+    int xscroll = lander.x;
+    int yscroll = lander.y - 20;
+
     while (1) {
+	// Update the lander
+	lander_update(&lander, &yscroll);
+
 	// Button controls to test background scroll
 	if (button_pressed(BUTTON_DOWN)) {
 	    yscroll++;
@@ -317,14 +361,23 @@ int main() {
 	if (button_pressed(BUTTON_LEFT)) {
 	    xscroll--;
 	}
-	wait_vblank();
-	*bg0_x_scroll = xscroll / 128;
-	*bg0_y_scroll = yscroll / 128;
-	*bg1_x_scroll = xscroll / 512;
-	*bg1_y_scroll = yscroll / 512;
-	*bg2_x_scroll = xscroll / 768;
-	*bg2_y_scroll = yscroll / 768;
-    }
-    delay(100);
-}
 
+	// Move lander up if A button is pressed
+	if (button_pressed(BUTTON_A)) {
+	    lander_ascend(&lander);
+	}
+	// Wait for vblank period before doing anything else
+	wait_vblank();
+	// Scroll the backgrounds
+	*bg0_x_scroll = xscroll;
+	*bg0_y_scroll = yscroll;
+	*bg1_x_scroll = xscroll / 7;
+	*bg1_y_scroll = yscroll / 7;
+	*bg2_x_scroll = xscroll / 15;
+	*bg2_y_scroll = yscroll / 15;
+	// Update sprites on screen
+	sprite_update_all();
+	// Delay so lander doesn't move too fast
+	delay(3000);
+    }
+}
