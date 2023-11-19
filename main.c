@@ -290,6 +290,7 @@ struct Lander {
     int landed;
     int fuel;
     int frame;
+    int border;
 };
 
 // Initialize lander
@@ -309,6 +310,25 @@ void lander_init(struct Lander* lander) {
     lander->sprite = sprite_init(lander->x, lander->y, SIZE_8_8, 0, 0, lander->frame, 0);
 }
 
+// Checks if the lander is at the bottom of the map, if so return true
+int lander_at_bounds(struct Lander* lander, int* yscroll) {
+    // 96 is the lowest yscroll value before it transitions to the next copy of the background below
+    if (*yscroll >= 96 && lander->y >= 20) {
+	// Change yscroll to 96 in case it goes under
+	*yscroll = 96;
+	return 1;
+    // 0 is the highest yscroll value before it transitions to the next copy of the background above
+    } else if (*yscroll <= 0 && lander->y <= 20) {
+	// Change yscroll to 0 in case it goes over
+	*yscroll = 0;
+	return 1;
+    } else {
+	// Set lander y to 20 if false
+	lander->y = 20;
+	return 0;
+    }
+}
+
 // Moves the lander struct up
 void lander_ascend(struct Lander* lander) {
     if (!lander->landed) {
@@ -318,10 +338,15 @@ void lander_ascend(struct Lander* lander) {
 
 // Updates the lander
 void lander_update(struct Lander* lander, int* yscroll) {
-    /* Add code to stop scrolling background and start updating lander position if near the ground */
     // Update position of lander
     if (!lander->landed) {
-        *yscroll += (lander->yvel >> 8);
+	// If lander at bottom or top of background, stop scrolling and move lander by changing y value. If false, continue scrolling.
+	if (lander_at_bounds(lander, yscroll)) {
+	    lander->y += (lander->yvel >> 8);
+	} else {
+            *yscroll += (lander->yvel >> 8);
+	}
+	// Add gravity to lander y velocity so it falls
 	lander->yvel += lander->gravity;
     }
 
