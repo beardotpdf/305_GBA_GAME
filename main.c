@@ -285,6 +285,7 @@ void setup_background() {
 struct Lander {
     struct Sprite* sprite;
     int x, y;
+    int xvel;
     int yvel;
     int gravity;
     int landed;
@@ -297,6 +298,7 @@ struct Lander {
 void lander_init(struct Lander* lander) {
     lander->x = 120;
     lander->y = 20;
+    lander->xvel = 0;
     lander->yvel = 0;
     lander->gravity = 20;
     lander->landed = 0;
@@ -329,15 +331,27 @@ int lander_at_bounds(struct Lander* lander, int* yscroll) {
     }
 }
 
-// Moves the lander struct up
+// Decreases lander y velocity to allow it to move it up
 void lander_ascend(struct Lander* lander) {
     if (!lander->landed) {
 	lander->yvel += -40;
     }
 }
 
+// Increases or decreases lander x velocity to move it left or right
+void lander_side(struct Lander* lander, int right) {
+    if (!lander->landed) {
+	// If right is true, increase xvel; If false, decrease xvel
+	if (right) {
+	    lander->xvel += 30;
+	} else {
+	    lander->xvel -= 30;
+	}
+    }
+}
+
 // Updates the lander
-void lander_update(struct Lander* lander, int* yscroll) {
+void lander_update(struct Lander* lander, int* yscroll , int* xscroll) {
     // Update position of lander
     if (!lander->landed) {
 	// If lander at bottom or top of background, stop scrolling and move lander by changing y value. If false, continue scrolling.
@@ -348,6 +362,8 @@ void lander_update(struct Lander* lander, int* yscroll) {
 	}
 	// Add gravity to lander y velocity so it falls
 	lander->yvel += lander->gravity;
+	// Scroll background left or right depending on the x velocity of the lander
+	*xscroll += (lander->xvel >> 8);
     }
 
     // Set lander sprite on the screen position
@@ -371,26 +387,20 @@ int main() {
 
     while (1) {
 	// Update the lander
-	lander_update(&lander, &yscroll);
-
-	// Button controls to test background scroll
-	if (button_pressed(BUTTON_DOWN)) {
-	    yscroll++;
-	}
-	if (button_pressed(BUTTON_UP)) {
-	    yscroll--;
-	}
-	if (button_pressed(BUTTON_RIGHT)) {
-	    xscroll++;
-	}
-	if (button_pressed(BUTTON_LEFT)) {
-	    xscroll--;
-	}
+	lander_update(&lander, &yscroll, &xscroll);
 
 	// Move lander up if A button is pressed
 	if (button_pressed(BUTTON_A)) {
 	    lander_ascend(&lander);
 	}
+        // Move lander left or right if LEFT or RIGHT button is pressed	
+	if (button_pressed(BUTTON_RIGHT)) {
+	    lander_side(&lander, 1);
+	}
+	if (button_pressed(BUTTON_LEFT)) {
+	    lander_side(&lander, 0);
+	}
+
 	// Wait for vblank period before doing anything else
 	wait_vblank();
 	// Scroll the backgrounds
