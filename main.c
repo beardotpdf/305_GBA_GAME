@@ -424,6 +424,41 @@ void lander_side(struct Lander* lander, int right) {
     }
 }
 
+// determines if the lander is colliding with the surface 
+// by checking the bottom left and bottom right corners of its sprite
+// overlap with ground tiles
+int checkCollision(struct Lander* lander, int* xscroll, int* yscroll) {
+    int collision = 0;
+
+    // define lander hitbox
+    int left = (*xscroll + lander->x) % 256;
+    int right = (left + 7) % 256;
+
+    int top = (*yscroll + lander->y) % 256;
+    int bottom = (top + 7) % 256;
+
+    // check bottom left tile
+    
+    int blIndex = (left >> 3) + (bottom >> 3) * 32;
+
+    if (ground[blIndex]) {
+        collision = 1;
+    }
+
+    // check bottom right tile
+
+    int brIndex = (right >> 3) + (bottom >> 3) * 32;
+
+    if (ground[brIndex]) {
+        collision = 1;
+    }
+
+    // don't check top left or top right; it can be assumed that the lander won't fly up into the ground
+
+    return collision;
+
+}
+
 // Updates the lander
 void lander_update(struct Lander* lander, int* yscroll , int* xscroll) {
     // Update position of lander
@@ -442,6 +477,12 @@ void lander_update(struct Lander* lander, int* yscroll , int* xscroll) {
 
     // Set lander sprite on the screen position
     sprite_position(lander->sprite, lander->x, lander->y);
+
+    // placeholder collision behavior
+    // simply sets lander->landed
+    if (checkCollision(lander, xscroll, yscroll)) {
+        lander->landed = 1;
+    }
 }
 
 // Updates the UI by changing the tile offsets of the digit character sprites
@@ -469,6 +510,7 @@ void UI_update(struct UI* ui, struct Lander* lander) {
     sprite_set_offset(ui->score3.sprite, ui->score3.frame);
     sprite_set_offset(ui->score4.sprite, ui->score4.frame);
 }
+
 
 int main() {
     *display_control = MODE0 | BG0_ENABLE | BG1_ENABLE | BG2_ENABLE | BG3_ENABLE | SPRITE_ENABLE | SPRITE_MAP_1D;
