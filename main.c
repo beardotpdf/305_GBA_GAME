@@ -4,8 +4,8 @@
 #include "ground.h"
 #include "LunarLanderTiles.h"
 
-// Lander h file is currently a placeholder, might be changed
-#include "lander.h"
+// Sprites h file is currently a placeholder, might be changed
+#include "sprites.h"
 
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 160
@@ -157,22 +157,22 @@ struct Sprite* sprite_init(int x, int y, enum SpriteSize size,
     int h = horizontal_flip ? 1 : 0;
     int v = vertical_flip ? 1 : 0;
 
-    sprites[index].attribute0 = y |             /* y coordinate */
-        (0 << 8) |          /* rendering mode */
-        (0 << 10) |         /* gfx mode */
-        (0 << 12) |         /* mosaic */
-        (1 << 13) |         /* color mode, 0:16, 1:256 */
-        (shape_bits << 14); /* shape */
+    sprites[index].attribute0 = y |            
+        (0 << 8) |        
+        (0 << 10) |         
+        (0 << 12) |      
+        (1 << 13) |         
+        (shape_bits << 14);
 
-    sprites[index].attribute1 = x |             /* x coordinate */
-        (0 << 9) |          /* affine flag */
-        (h << 12) |         /* horizontal flip flag */
-        (v << 13) |         /* vertical flip flag */
-        (size_bits << 14);  /* size */
+    sprites[index].attribute1 = x |            
+        (0 << 9) |       
+        (h << 12) |        
+        (v << 13) |         
+        (size_bits << 14); 
 
-    sprites[index].attribute2 = tile_index |   // tile index */
-        (priority << 10) | // priority */
-        (0 << 12);         // palette bank (only 16 color)*/
+    sprites[index].attribute2 = tile_index |   
+        (priority << 10) | 
+        (0 << 12);         
 
     return &sprites[index];
 }
@@ -215,9 +215,8 @@ void sprite_set_offset(struct Sprite* sprite, int offset) {
 
 // Set up sprite image and the palette
 void setup_sprite_image() {
-    memcpy16_dma((unsigned short*) sprite_palette, (unsigned short*) lander_palette, PALETTE_SIZE);
-
-    memcpy16_dma((unsigned short*) sprite_image_memory, (unsigned short*) lander_data, (lander_width * lander_height) / 2);
+    memcpy16_dma((unsigned short*) sprite_palette, (unsigned short*) sprites_palette, PALETTE_SIZE);
+    memcpy16_dma((unsigned short*) sprite_image_memory, (unsigned short*) sprites_data, (sprites_width * sprites_height) / 2);
 }
 
 // Function to set up background for the game
@@ -233,34 +232,34 @@ void setup_background() {
         dest[i] = image[i];
     }
 
-    *bg0_control = 0 |    /* priority, 0 is highest, 3 is lowest */
-        (0 << 2)  |       /* the char block the image data is stored in */
-        (0 << 6)  |       /* the mosaic flag */
-        (1 << 7)  |       /* color mode, 0 is 16 colors, 1 is 256 colors */
-        (16 << 8) |       /* the screen block the tile data is stored in */
-        (1 << 13) |       /* wrapping flag */
-        (0 << 14);        /* bg size, 0 is 256x256 */
-    *bg1_control = 1 |    /* priority, 0 is highest, 3 is lowest */
-        (0 << 2)  |       /* the char block the image data is stored in */
-        (0 << 6)  |       /* the mosaic flag */
-        (1 << 7)  |       /* color mode, 0 is 16 colors, 1 is 256 colors */
-        (17 << 8) |       /* the screen block the tile data is stored in */
-        (1 << 13) |       /* wrapping flag */
-        (0 << 14);        /* bg size, 0 is 256x256 */
-    *bg2_control = 2 |    /* priority, 0 is highest, 3 is lowest */
-        (0 << 2)  |       /* the char block the image data is stored in */
-        (0 << 6)  |       /* the mosaic flag */
-        (1 << 7)  |       /* color mode, 0 is 16 colors, 1 is 256 colors */
-        (18 << 8) |       /* the screen block the tile data is stored in */
-        (1 << 13) |       /* wrapping flag */
-        (0 << 14);        /* bg size, 0 is 256x256 */
-    *bg3_control = 3 |    /* priority, 0 is highest, 3 is lowest */
-        (0 << 2)  |       /* the char block the image data is stored in */
-        (0 << 6)  |       /* the mosaic flag */
-        (1 << 7)  |       /* color mode, 0 is 16 colors, 1 is 256 colors */
-        (19 << 8) |       /* the screen block the tile data is stored in */
-        (1 << 13) |       /* wrapping flag */
-        (0 << 14);        /* bg size, 0 is 256x256 */
+    *bg0_control = 0 |    
+        (0 << 2)  |       
+        (0 << 6)  |       
+        (1 << 7)  |       
+        (16 << 8) |       
+        (1 << 13) |       
+        (0 << 14);        
+    *bg1_control = 1 |    
+        (0 << 2)  |       
+        (0 << 6)  |       
+        (1 << 7)  |       
+        (17 << 8) |       
+        (1 << 13) |      
+        (0 << 14);        
+    *bg2_control = 2 |    
+        (0 << 2)  |       
+        (0 << 6)  |       
+        (1 << 7)  |       
+        (18 << 8) |       
+        (1 << 13) |      
+        (0 << 14);        
+    *bg3_control = 3 |    
+        (0 << 2)  |       
+        (0 << 6)  |       
+        (1 << 7)  |       
+        (19 << 8) |       
+        (1 << 13) |      
+        (0 << 14);       
 
     dest = screen_block(16);
     for (int i = 0; i < (ground_width * ground_height); i++) {
@@ -290,9 +289,81 @@ struct Lander {
     int gravity;
     int landed;
     int fuel;
+    int score;
     int frame;
     int border;
 };
+
+// Struct for characters
+struct Character {
+    struct Sprite* sprite;
+    int x, y;
+    int frame;
+};
+
+// Initializes a character sprite
+void character_init(struct Character* character, int x, int y, int frame) {
+    character->x = x;
+    character->y = y;
+    character->frame = frame;
+    character->sprite = sprite_init(x, y, SIZE_8_8, 0, 0, character->frame, 0);
+}
+
+// Struct for the UI
+struct UI {
+    int x, y;
+    struct Character fuel1, fuel2, fuel3, fuel4;
+    struct Character score1, score2, score3, score4;
+};
+
+// Initializes the UI which shows the amount of fuel left and score
+void UI_init(struct UI* ui, int x, int y, struct Lander* lander) {
+    ui->x = x;
+    ui->y = y;
+
+    struct Character f, u, e1, l, colon1, s, c, o, r, e2, colon2;
+    struct Character fuel1, fuel2, fuel3, fuel4;
+    struct Character score1, score2, score3, score4;
+    // Letter offset used to get where the letter sprite frames start
+    int letter_offset = 18;
+    // Initialize letter character sprites
+    character_init(&f, x + 8, y, 2 * (letter_offset + 6));
+    character_init(&u, x + 16, y, 2 * (letter_offset + 21));
+    character_init(&e1, x + 24, y, 2 * (letter_offset + 5));
+    character_init(&l, x + 32, y, 2 * (letter_offset + 12));
+    character_init(&colon1, x + 40, y, 2 * 46);
+    character_init(&s, x, y + 9, 2 * (letter_offset + 19));
+    character_init(&c, x + 8, y + 9, 2 * (letter_offset + 3));
+    character_init(&o, x + 16, y + 9, 2 * (letter_offset + 15));
+    character_init(&r, x + 24, y + 9, 2 * (letter_offset + 18));
+    character_init(&e2, x + 32, y + 9, 2 * (letter_offset + 5));
+    character_init(&colon2, x + 40, y + 9, 2 * 46);
+
+    // Digit offset used to get to where the digit sprite frames start
+    int digit_offset = 9;
+    // Digit sprites used to display the amount of fuel left
+    int fuel = lander->fuel;
+    int score = lander->score;
+    // Initialize digit character sprites
+    character_init(&fuel1, x + 48, y, 2 * (digit_offset + (fuel / 10 / 10 / 10) % 10));
+    character_init(&fuel2, x + 56, y, 2 * (digit_offset + (fuel / 10 / 10) % 10));
+    character_init(&fuel3, x + 64, y, 2 * (digit_offset + (fuel / 10) % 10));
+    character_init(&fuel4, x + 72, y, 2 * (digit_offset + (fuel % 10)));
+    character_init(&score1, x + 48, y + 9, 2 * (digit_offset + (score / 10 / 10 / 10) % 10));
+    character_init(&score2, x + 56, y + 9, 2 * (digit_offset + (score / 10 / 10) % 10));
+    character_init(&score3, x + 64, y + 9, 2 * (digit_offset + (score / 10) % 10));
+    character_init(&score4, x + 72, y + 9, 2 * (digit_offset + (score % 10)));
+    // Assign the initialized digit character sprites to the UI struct variables
+    ui->fuel1 = fuel1;
+    ui->fuel2 = fuel2;
+    ui->fuel3 = fuel3;
+    ui->fuel4 = fuel4;
+    ui->score1 = score1;
+    ui->score2 = score2;
+    ui->score3 = score3;
+    ui->score4 = score4;
+};
+
 
 // Initialize lander
 void lander_init(struct Lander* lander) {
@@ -302,14 +373,15 @@ void lander_init(struct Lander* lander) {
     lander->yvel = 0;
     lander->gravity = 20;
     lander->landed = 0;
-    lander->fuel = 1000;
+    lander->fuel = 3000;
+    lander->score = 0;
     lander->frame = 0;
     // Initialize sprite of lander and its properties
     /*
      * Lander sprite is currently a placeholder and is a 8 by 8 size, if lander sprite is changed to something bigger 
      * change the SIZE_8_8 value in the third argument to whatever the new sprite size is.
      */
-    lander->sprite = sprite_init(lander->x, lander->y, SIZE_8_8, 0, 0, lander->frame, 0);
+    lander->sprite = sprite_init(lander->x, lander->y, SIZE_8_8, 0, 0, lander->frame, 1);
 }
 
 // Checks if the lander is at the bottom of the map, if so return true
@@ -372,6 +444,32 @@ void lander_update(struct Lander* lander, int* yscroll , int* xscroll) {
     sprite_position(lander->sprite, lander->x, lander->y);
 }
 
+// Updates the UI by changing the tile offsets of the digit character sprites
+void UI_update(struct UI* ui, struct Lander* lander) {
+    int digit_offset = 9;
+    // Get fuel and score of lander
+    int fuel = lander->fuel;
+    int score = lander->score;
+    // Change frames for the digit character sprites based on score and amoutn of fuel left
+    ui->fuel1.frame = 2 * (digit_offset + (fuel / 10 / 10 / 10) % 10);
+    ui->fuel2.frame = 2 * (digit_offset + (fuel / 10 / 10) % 10);
+    ui->fuel3.frame = 2 * (digit_offset + (fuel / 10) % 10);
+    ui->fuel4.frame = 2 * (digit_offset + (fuel % 10));
+    ui->score1.frame = 2 * (digit_offset + (score / 10 / 10 / 10) % 10);
+    ui->score2.frame = 2 * (digit_offset + (score / 10 / 10) % 10);
+    ui->score3.frame = 2 * (digit_offset + (score / 10) % 10);
+    ui->score4.frame = 2 * (digit_offset + (score % 10));
+    // Set the offset for each of the digit character sprites to update them
+    sprite_set_offset(ui->fuel1.sprite, ui->fuel1.frame);
+    sprite_set_offset(ui->fuel2.sprite, ui->fuel2.frame);
+    sprite_set_offset(ui->fuel3.sprite, ui->fuel3.frame);
+    sprite_set_offset(ui->fuel4.sprite, ui->fuel4.frame);
+    sprite_set_offset(ui->score1.sprite, ui->score1.frame);
+    sprite_set_offset(ui->score2.sprite, ui->score2.frame);
+    sprite_set_offset(ui->score3.sprite, ui->score3.frame);
+    sprite_set_offset(ui->score4.sprite, ui->score4.frame);
+}
+
 int main() {
     *display_control = MODE0 | BG0_ENABLE | BG1_ENABLE | BG2_ENABLE | BG3_ENABLE | SPRITE_ENABLE | SPRITE_MAP_1D;
     // Set up background and the sprites
@@ -383,11 +481,17 @@ int main() {
     struct Lander lander;
     lander_init(&lander);
 
+    // Initialize UI
+    struct UI ui;
+    UI_init(&ui, 1, 1, &lander);
+
     // Set initial scroll to lander x and y position
     int xscroll = lander.x;
     int yscroll = lander.y - 20;
 
     while (1) {
+	// Update UI
+	UI_update(&ui, &lander);
 	// Update the lander
 	lander_update(&lander, &yscroll, &xscroll);
 
