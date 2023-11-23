@@ -333,20 +333,22 @@ int lander_at_bounds(struct Lander* lander, int* yscroll) {
 
 // Decreases lander y velocity to allow it to move it up
 void lander_ascend(struct Lander* lander) {
-    if (!lander->landed) {
+    if (!lander->landed && lander->fuel > 0) {
 	lander->yvel += -40;
+	lander->fuel -= 1;
     }
 }
 
 // Increases or decreases lander x velocity to move it left or right
 void lander_side(struct Lander* lander, int right) {
-    if (!lander->landed) {
+    if (!lander->landed && lander->fuel > 0) {
 	// If right is true, increase xvel; If false, decrease xvel
 	if (right) {
 	    lander->xvel += 30;
 	} else {
 	    lander->xvel -= 30;
 	}
+	lander->fuel -= 1;
     }
 }
 
