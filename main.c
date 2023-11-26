@@ -427,6 +427,7 @@ void lander_side(struct Lander* lander, int right) {
 // determines if the lander is colliding with the surface 
 // by checking the bottom left and bottom right corners of its sprite
 // overlap with ground tiles
+// returns 2 when landing on both feet, 0 when no collision happens, and 1 for any other collision
 int checkCollision(struct Lander* lander, int* xscroll, int* yscroll) {
     int collision = 0;
 
@@ -442,7 +443,7 @@ int checkCollision(struct Lander* lander, int* xscroll, int* yscroll) {
     int blIndex = (left >> 3) + (bottom >> 3) * 32;
 
     if (ground[blIndex]) {
-        collision = 1;
+        collision += 1;
     }
 
     // check bottom right tile
@@ -450,7 +451,7 @@ int checkCollision(struct Lander* lander, int* xscroll, int* yscroll) {
     int brIndex = (right >> 3) + (bottom >> 3) * 32;
 
     if (ground[brIndex]) {
-        collision = 1;
+        collision += 1;
     }
 
     // don't check top left or top right; it can be assumed that the lander won't fly up into the ground
@@ -464,15 +465,31 @@ void lander_update(struct Lander* lander, int* yscroll , int* xscroll) {
     // Update position of lander
     if (!lander->landed) {
 	// If lander at bottom or top of background, stop scrolling and move lander by changing y value. If false, continue scrolling.
-	if (lander_at_bounds(lander, yscroll)) {
-	    lander->y += (lander->yvel >> 8);
-	} else {
+	    if (lander_at_bounds(lander, yscroll)) {
+	        lander->y += (lander->yvel >> 8);
+	    } else {
             *yscroll += (lander->yvel >> 8);
-	}
+	    }
 	// Add gravity to lander y velocity so it falls
-	lander->yvel += lander->gravity;
+	    lander->yvel += lander->gravity;
 	// Scroll background left or right depending on the x velocity of the lander
-	*xscroll += (lander->xvel >> 8);
+	    *xscroll += (lander->xvel >> 8);
+    
+        int collision = checkCollision(lander, xscroll, yscroll);
+
+        if (collision == 2 && lander->xvel >> 8 == 0 && lander->yvel >> 8 <= 1) {
+            // successful landing
+            
+            lander->y--; // move sprite to ground level
+            
+            lander->score += 250 + (lander->yvel / 2);
+            
+            lander->landed = 1;
+        }
+        else if (collision) {
+            // run crash landing sequence here
+            lander->landed = 1;
+        }
     }
 
     // Set lander sprite on the screen position
@@ -480,9 +497,6 @@ void lander_update(struct Lander* lander, int* yscroll , int* xscroll) {
 
     // placeholder collision behavior
     // simply sets lander->landed
-    if (checkCollision(lander, xscroll, yscroll)) {
-        lander->landed = 1;
-    }
 }
 
 // Updates the UI by changing the tile offsets of the digit character sprites
