@@ -424,6 +424,10 @@ void lander_side(struct Lander* lander, int right) {
     }
 }
 
+// asm function
+// returns 1 if pixel at (x, y) contains ground, otherwise returns zero
+int getIndex(int x, int y);
+
 // determines if the lander is colliding with the surface 
 // by checking the bottom left and bottom right corners of its sprite
 // overlap with ground tiles
@@ -432,27 +436,24 @@ int checkCollision(struct Lander* lander, int* xscroll, int* yscroll) {
     int collision = 0;
 
     // define lander hitbox
-    int left = (*xscroll + lander->x) % 256;
-    int right = (left + 7) % 256;
+    int left = *xscroll + lander->x;
+    int right = left + 7;
 
-    int top = (*yscroll + lander->y) % 256;
-    int bottom = (top + 7) % 256;
+    int top = *yscroll + lander->y;
+    int bottom = top + 7;
 
     // check bottom left tile
-    
-    int blIndex = (left >> 3) + (bottom >> 3) * 32;
 
-    if (ground[blIndex]) {
+    if (ground[getIndex(left, bottom)]) {
         collision += 1;
     }
 
     // check bottom right tile
 
-    int brIndex = (right >> 3) + (bottom >> 3) * 32;
-
-    if (ground[brIndex]) {
+    if (ground[getIndex(right, bottom)]) {
         collision += 1;
     }
+
 
     // don't check top left or top right; it can be assumed that the lander won't fly up into the ground
 
@@ -496,8 +497,8 @@ void lander_update(struct Lander* lander, int* yscroll , int* xscroll) {
     // Set lander sprite on the screen position
     sprite_position(lander->sprite, lander->x, lander->y);
 
-    // placeholder collision behavior
-    // simply sets lander->landed
+    
+   
 }
 
 // Updates the UI by changing the tile offsets of the digit character sprites
