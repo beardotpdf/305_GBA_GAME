@@ -298,27 +298,21 @@ struct Lander {
 struct VerticalThrust {
     struct Sprite* sprite;
     int x, y;
-    int xvel;
-    int yvel;
-    int gravity;
+    int xoffset, yoffset;
 };
 
 // Struct for Left Thrust (on left side of lander)
 struct LeftThrust {
     struct Sprite* sprite;
     int x, y;
-    int xvel;
-    int yvel;
-    int gravity;
+    int xoffset, yoffset;
 };
 
 // Struct for Right Thrust (on right side of lander)
 struct RightThrust {
     struct Sprite* sprite;
     int x, y;
-    int xvel;
-    int yvel;
-    int gravity;
+    int xoffset, yoffset;
 };
 
 // Struct for characters
