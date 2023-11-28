@@ -477,18 +477,19 @@ void lander_update(struct Lander* lander, int* yscroll , int* xscroll) {
     
         int collision = checkCollision(lander, xscroll, yscroll);
 
-        if (collision == 2 && lander->xvel >> 8 == 0 && lander->yvel >> 8 <= 1) {
+        if (collision && lander->xvel >> 8 <= 1 && lander->yvel >> 8 <= 1) {
             // successful landing
             
             lander->y--; // move sprite to ground level
             
-            lander->score += 250 + (lander->yvel / 2);
+            lander->score += 250;
             
             lander->landed = 1;
         }
         else if (collision) {
             // run crash landing sequence here
             lander->landed = 1;
+            
         }
     }
 
