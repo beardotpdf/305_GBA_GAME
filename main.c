@@ -294,6 +294,27 @@ struct Lander {
     int border;
 };
 
+// Struct for Vertical thrust
+struct VerticalThrust {
+    struct Sprite* sprite;
+    int x, y;
+    int xoffset, yoffset;
+};
+
+// Struct for Left Thrust (on left side of lander)
+struct LeftThrust {
+    struct Sprite* sprite;
+    int x, y;
+    int xoffset, yoffset;
+};
+
+// Struct for Right Thrust (on right side of lander)
+struct RightThrust {
+    struct Sprite* sprite;
+    int x, y;
+    int xoffset, yoffset;
+};
+
 // Struct for characters
 struct Character {
     struct Sprite* sprite;
@@ -382,6 +403,24 @@ void lander_init(struct Lander* lander) {
      * change the SIZE_8_8 value in the third argument to whatever the new sprite size is.
      */
     lander->sprite = sprite_init(lander->x, lander->y, SIZE_8_8, 0, 0, lander->frame, 1);
+}
+
+void thrust_init(struct VerticalThrust* verticalThrust, struct LeftThrust* leftThrust, struct RightThrust rightThrust) {
+    //TODO add offset from values
+    verticalThrust->x = 0;
+    veritcalThrust->y = 0;
+    verticalThrust->xoffset = 0;
+    verticalThrust->yoffset = 0;
+
+    leftThrust->x = 0;
+    leftThrust->y = 0;
+    leftThrust->xoffset = 0;
+    leftThrust->yoffset = 0;
+
+    rightThrust->x = 0;
+    rightThrust->y = 0;
+    rightThrust->xoffset = 0;
+    rightThrust->yoffset = 0;
 }
 
 // Checks if the lander is at the bottom of the map, if so return true
