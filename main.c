@@ -405,6 +405,16 @@ void lander_init(struct Lander* lander) {
     lander->sprite = sprite_init(lander->x, lander->y, SIZE_8_8, 0, 0, lander->frame, 1);
 }
 
+void landerReset(struct Lander* lander) {
+    lander->x = 120;
+    lander->y = 20;
+    lander->xvel = 0;
+    lander->yvel = 0;
+    lander->gravity = 20;
+    lander->landed = 0;
+    lander->frame = 0;
+}
+
 void thrust_init(struct VerticalThrust* verticalThrust, struct LeftThrust* leftThrust, struct RightThrust rightThrust) {
     //TODO add offset from value0
     /*
@@ -556,6 +566,7 @@ void lander_update(struct Lander* lander, int* yscroll , int* xscroll) {
 
     if (lander->landed > 60) {
         // TODO: reset lander position, velocity, landed
+        landerReset(lander);
     }
     
     // Set lander sprite on the screen position
