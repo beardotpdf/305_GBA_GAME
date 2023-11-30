@@ -464,7 +464,7 @@ void lander_side(struct Lander* lander, int right) {
 }
 
 // asm function
-// returns 1 if pixel at (x, y) contains ground, otherwise returns zero
+// returns index of bg tile that contains pixel (x, y) 
 int getIndex(int x, int y);
 
 // determines if the lander is colliding with the surface 
