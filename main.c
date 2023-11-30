@@ -406,7 +406,8 @@ void lander_init(struct Lander* lander) {
 }
 
 void thrust_init(struct VerticalThrust* verticalThrust, struct LeftThrust* leftThrust, struct RightThrust rightThrust) {
-    //TODO add offset from values
+    //TODO add offset from value0
+    /*
     verticalThrust->x = 0;
     veritcalThrust->y = 0;
     verticalThrust->xoffset = 0;
@@ -421,6 +422,7 @@ void thrust_init(struct VerticalThrust* verticalThrust, struct LeftThrust* leftT
     rightThrust->y = 0;
     rightThrust->xoffset = 0;
     rightThrust->yoffset = 0;
+    */
 }
 
 // Checks if the lander is at the bottom of the map, if so return true
@@ -450,16 +452,30 @@ void lander_ascend(struct Lander* lander) {
     }
 }
 
+// updates lander's x velocity and decrements remaining fuel
+void updateLanderXvel(int* xvel, int right, int* fuel);
+
 // Increases or decreases lander x velocity to move it left or right
 void lander_side(struct Lander* lander, int right) {
     if (!lander->landed && lander->fuel > 0) {
 	// If right is true, increase xvel; If false, decrease xvel
-	if (right) {
-	    lander->xvel += 30;
-	} else {
-	    lander->xvel -= 30;
-	}
-	lander->fuel -= 1;
+
+        updateLanderXvel(&(lander->xvel), right, &(lander->fuel));
+
+/*
+
+	    if (right) {
+	        lander->xvel += 30;
+    	} else {
+	        lander->xvel -= 30;
+    	}
+
+
+
+	    lander->fuel -= 1;
+
+*/
+
     }
 }
 
