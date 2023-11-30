@@ -567,6 +567,9 @@ void lander_update(struct Lander* lander, int* yscroll , int* xscroll) {
     if (lander->landed > 60) {
         // TODO: reset lander position, velocity, landed
         landerReset(lander);
+
+        *xscroll = lander->x;
+        *yscroll = lander->y - 20;
     }
     
     // Set lander sprite on the screen position
