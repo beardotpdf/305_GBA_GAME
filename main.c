@@ -533,8 +533,8 @@ void lander_update(struct Lander* lander, int* yscroll , int* xscroll) {
     
         int collision = checkCollision(lander, xscroll, yscroll);
 
-        if (collision && lander->xvel >> 8 <= 1 && lander->yvel >> 8 <= 1) {
-            // successful landing
+        if (collision == 2  && lander->xvel >> 9 == 0 && lander->yvel >> 8 <= 1) {
+            // successful landing on both feet with max 1px/frame movement on each axis
             
             lander->y--; // move sprite to ground level
             
@@ -549,6 +549,15 @@ void lander_update(struct Lander* lander, int* yscroll , int* xscroll) {
         }
     }
 
+    // increment reset timer after landing
+    if (lander->landed) {
+        lander->landed++;
+    }
+
+    if (lander->landed > 60) {
+        // TODO: reset lander position, velocity, landed
+    }
+    
     // Set lander sprite on the screen position
     sprite_position(lander->sprite, lander->x, lander->y);
 
