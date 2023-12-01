@@ -4,7 +4,6 @@
 #include "ground.h"
 #include "LunarLanderTiles.h"
 
-// Sprites h file is currently a placeholder, might be changed
 #include "sprites.h"
 
 #define SCREEN_WIDTH 240
@@ -238,7 +237,7 @@ void setup_background() {
         (1 << 7)  |       
         (16 << 8) |       
         (1 << 13) |       
-        (0 << 14);        
+        (0 << 14);    
     *bg1_control = 1 |    
         (0 << 2)  |       
         (0 << 6)  |       
@@ -260,19 +259,22 @@ void setup_background() {
         (19 << 8) |       
         (1 << 13) |      
         (0 << 14);       
-
+    // Background for the ground
     dest = screen_block(16);
     for (int i = 0; i < (ground_width * ground_height); i++) {
         dest[i] = ground[i];
     }
+    // Background for stars
     dest = screen_block(17);
     for (int i = 0; i < (stars_width * stars_height); i++) {
         dest[i] = stars[i];
     }
+    // Background for stars2
     dest = screen_block(18);
     for (int i = 0; i < (stars2_width * stars2_height); i++) {
         dest[i] = stars2[i];
     }
+    // Background for sky
     dest = screen_block(19);
     for (int i = 0; i < (sky_width * sky_height); i++) {
         dest[i] = sky[i];
@@ -560,16 +562,16 @@ int checkCollision(struct Lander* lander, int* xscroll, int* yscroll) {
 void lander_update(struct Lander* lander, int* yscroll , int* xscroll) {
     // Update position of lander
     if (!lander->landed) {
-	// If lander at bottom or top of background, stop scrolling and move lander by changing y value. If false, continue scrolling.
-	    if (lander_at_bounds(lander, yscroll)) {
-	        lander->y += (lander->yvel >> 8);
-	    } else {
+      	// If lander at bottom or top of background, stop scrolling and move lander by changing y value. If false, continue scrolling.
+	if (lander_at_bounds(lander, yscroll)) {
+	    lander->y += (lander->yvel >> 8);
+	} else {
             *yscroll += (lander->yvel >> 8);
-	    }
+	}
 	// Add gravity to lander y velocity so it falls
-	    lander->yvel += lander->gravity;
+	lander->yvel += lander->gravity;
 	// Scroll background left or right depending on the x velocity of the lander
-	    *xscroll += (lander->xvel >> 8);
+	*xscroll += (lander->xvel >> 8);
     
         int collision = checkCollision(lander, xscroll, yscroll);
 
@@ -584,8 +586,7 @@ void lander_update(struct Lander* lander, int* yscroll , int* xscroll) {
         }
         else if (collision) {
             // run crash landing sequence here
-            lander->landed = 1;
-            
+            lander->landed = 1;    
         }
     }
 
@@ -604,8 +605,6 @@ void lander_update(struct Lander* lander, int* yscroll , int* xscroll) {
     
     // Set lander sprite on the screen position
     sprite_position(lander->sprite, lander->x, lander->y);
-    
-   
 }
 
 // Update thrust sprites
