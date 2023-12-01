@@ -608,6 +608,50 @@ void lander_update(struct Lander* lander, int* yscroll , int* xscroll) {
    
 }
 
+// Update thrust sprites
+void thrust_update(struct Lander* lander, struct VerticalThrust* verticalThrust, struct LeftThrust* leftThrust, struct RightThrust* rightThrust) {
+    sprite_position(verticalThrust, lander->x, lander->y + verticalThrust->yoffset);
+    sprite_position(leftThrust, lander->x + leftThrust->xoffset, lander->y);
+    sprite_position(rightThrust, lander->x + rightThrust->xoffset, lander->y);
+    
+    if(button_pressed(BUTTON_A)) {
+        verticalThrust->counter++;
+        if (verticalThrust->counter >= verticalThrust->animation_delay) {   
+            verticalThrust->frame = verticalThrust->frame + 16;
+            if (verticalThrust->frame > 16) {
+                verticalThrust->frame = 0;
+            }
+            //TODO SET NEW SPRITE
+            verticalThrust->counter = 0;
+        }
+    }
+
+    if (button_pressed(BUTTON_RIGHT)) {
+        leftThrust->counter++;
+        if (leftThrust->counter >= leftThrust->animation_delay) {
+            leftThrust->frame = leftThrust->frame + 16;
+            if (leftThrust->frame > 16) {
+                leftThrust->frame = 0;
+            }
+            //TODO SET NEW SPRITE
+            leftThrust->counter = 0;
+        }
+    }
+
+    if (button_pressed(BUTTON_LEFT)) {
+        rightThrust->counter++;
+        if (rightThrust->counter >= rightThrust->animation_delay) {
+            rightThrust->frame = rightThrust->frame + 16;
+            if (rightThrust->frame > 16) {
+                rightThrust->frame = 0;
+            }
+            //TODO SET NEW SPRITE
+            rightThrust->counter = 0;
+        }
+    }
+}
+
+
 // Updates the UI by changing the tile offsets of the digit character sprites
 void UI_update(struct UI* ui, struct Lander* lander) {
     int digit_offset = 9;
