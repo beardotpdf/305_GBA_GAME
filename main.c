@@ -595,15 +595,9 @@ void lander_update(struct Lander* lander, int* yscroll , int* xscroll, struct Ve
 
 // Update thrust sprites
 void thrust_update(struct Lander* lander, struct VerticalThrust* verticalThrust, struct LeftThrust* leftThrust, struct RightThrust* rightThrust) {
-<<<<<<< HEAD
     sprite_position(verticalThrust->sprite, lander->x, (lander->y + verticalThrust->yoffset));
     sprite_position(leftThrust->sprite, (lander->x + leftThrust->xoffset), lander->y);
     sprite_position(rightThrust->sprite, (lander->x + rightThrust->xoffset), lander->y);
-=======
-    //sprite_position(verticalThrust, lander->x, lander->y + verticalThrust->yoffset);
-    //sprite_position(leftThrust, lander->x + leftThrust->xoffset, lander->y);
-    //sprite_position(rightThrust, lander->x + rightThrust->xoffset, lander->y);
->>>>>>> 81be1aa159a44a1f1990346178d732d3d3587392
     
     if(button_pressed(BUTTON_A)) {
         verticalThrust->counter++;
@@ -700,7 +694,7 @@ int main() {
 	UI_update(&ui, &lander);
 	// Update the lander
 	lander_update(&lander, &yscroll, &xscroll, &verticalThrust, &leftThrust, &rightThrust);
-    thrust_update(&lander, &verticalThrust, &leftThrust, &rightThrust);
+    	thrust_update(&lander, &verticalThrust, &leftThrust, &rightThrust);
 	// Move lander up if A button is pressed
 	if (button_pressed(BUTTON_A)) {
 	    lander_ascend(&lander);
