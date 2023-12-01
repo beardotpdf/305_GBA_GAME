@@ -444,7 +444,7 @@ void thrust_init(struct VerticalThrust* verticalThrust, struct LeftThrust* leftT
     
     verticalThrust->xoffset = 0;
     verticalThrust->yoffset = 8;
-    verticalThrust->x = lander->x;
+    verticalThrust->x = lander->x; 
     verticalThrust->y = lander->y + verticalThrust->yoffset;
     verticalThrust->frame = 0;
     verticalThrust->animation_delay = 8; 
@@ -476,6 +476,7 @@ void thrust_init(struct VerticalThrust* verticalThrust, struct LeftThrust* leftT
     rightThrust->sprite = sprite_init(rightThrust->x, rightThrust->y, SIZE_8_8, 0, 0, 8, 1);
 
 }
+
 
 // Checks if the lander is at the bottom of the map, if so return true
 int lander_at_bounds(struct Lander* lander, int* yscroll) {
@@ -575,44 +576,6 @@ void lander_update(struct Lander* lander, int* yscroll , int* xscroll, struct Ve
         // Scroll background left or right depending on the x velocity of the lander
         *xscroll += (lander->xvel >> 8);
 
-        // Animate Vertical Thruster
-        if(button_pressed(BUTTON_A)) {
-            verticalThrust->counter++;
-            if (verticalThrust->counter >= verticalThrust->animation_delay) {   
-                verticalThrust->frame = verticalThrust->frame + 16;
-                if (verticalThrust->frame > 16) {
-                    verticalThrust->frame = 0;
-                }
-                flip_sprite(verticalThrust->sprite, 14, 16);
-                verticalThrust->counter = 0;
-            }
-        }
-
-        // Animate Left Thruster
-        if (button_pressed(BUTTON_RIGHT)) {
-            leftThrust->counter++;
-            if (leftThrust->counter >= leftThrust->animation_delay) {
-                leftThrust->frame = leftThrust->frame + 16;
-                if (leftThrust->frame > 16) {
-                    leftThrust->frame = 0;
-                }
-                flip_sprite(leftThrust->sprite, 10, 12);
-                leftThrust->counter = 0;
-            }
-        }
-
-        // Animate Right Thruster
-        if (button_pressed(BUTTON_LEFT)) {
-            rightThrust->counter++;
-            if (rightThrust->counter >= rightThrust->animation_delay) {
-                rightThrust->frame = rightThrust->frame + 16;
-                if (rightThrust->frame > 16) {
-                    rightThrust->frame = 0;
-                }
-                flip_sprite(rightThrust->sprite, 10, 12);
-                rightThrust->counter = 0;
-            }
-        }
         int collision = checkCollision(lander, xscroll, yscroll);
 
         if (collision == 2  && lander->xvel >> 9 == 0 && lander->yvel >> 8 <= 1) {
@@ -636,13 +599,58 @@ void lander_update(struct Lander* lander, int* yscroll , int* xscroll, struct Ve
         sprite_set_offset(verticalThrust->sprite, 8);
         sprite_set_offset(leftThrust->sprite, 8);
         sprite_set_offset(rightThrust->sprite, 8);
+    } else {
+        // Animate Vertical Thruster
+        if(button_pressed(BUTTON_A)) {
+            verticalThrust->counter++;
+            if (verticalThrust->counter >= verticalThrust->animation_delay) {   
+                verticalThrust->frame = verticalThrust->frame + 16;
+                if (verticalThrust->frame > 16) {
+                    verticalThrust->frame = 0;
+                }
+                flip_sprite(verticalThrust->sprite, 14, 16);
+                verticalThrust->counter = 0;
+            }
+        } else {
+            sprite_set_offset(verticalThrust->sprite, 8);
+        }
+
+        // Animate Left Thruster
+        if (button_pressed(BUTTON_RIGHT)) {
+            leftThrust->counter++;
+            if (leftThrust->counter >= leftThrust->animation_delay) {
+                leftThrust->frame = leftThrust->frame + 16;
+                if (leftThrust->frame > 16) {
+                    leftThrust->frame = 0;
+                }
+                flip_sprite(leftThrust->sprite, 10, 12);
+                leftThrust->counter = 0;
+            }
+        } else {
+            sprite_set_offset(leftThrust->sprite, 8);
+        }
+
+        // Animate Right Thruster
+        if (button_pressed(BUTTON_LEFT)) {
+            rightThrust->counter++;
+            if (rightThrust->counter >= rightThrust->animation_delay) {
+                rightThrust->frame = rightThrust->frame + 16;
+                if (rightThrust->frame > 16) {
+                    rightThrust->frame = 0;
+                }
+                flip_sprite(rightThrust->sprite, 10, 12);
+                rightThrust->counter = 0;
+            }
+        } else {
+            sprite_set_offset(rightThrust->sprite, 8);
+        }
     }
 
     if (lander->landed > 60) {
         // TODO: reset lander position, velocity, landed
         landerReset(lander);
         // Set thrusters to init state
-        thrust_init(&lander, &verticalThrust, &leftThrust, &rightThrust);
+        thrust_init(verticalThrust, leftThrust, rightThrust, lander);
 
         *xscroll = lander->x;
         *yscroll = lander->y - 20;
