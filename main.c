@@ -504,20 +504,6 @@ void lander_side(struct Lander* lander, int right) {
 
         updateLanderXvel(&(lander->xvel), right, &(lander->fuel));
 
-/*
-
-	    if (right) {
-	        lander->xvel += 30;
-    	} else {
-	        lander->xvel -= 30;
-    	}
-
-
-
-	    lander->fuel -= 1;
-
-*/
-
     }
 }
 
@@ -609,9 +595,9 @@ void lander_update(struct Lander* lander, int* yscroll , int* xscroll) {
 
 // Update thrust sprites
 void thrust_update(struct Lander* lander, struct VerticalThrust* verticalThrust, struct LeftThrust* leftThrust, struct RightThrust* rightThrust) {
-    sprite_position(verticalThrust, lander->x, lander->y + verticalThrust->yoffset);
-    sprite_position(leftThrust, lander->x + leftThrust->xoffset, lander->y);
-    sprite_position(rightThrust, lander->x + rightThrust->xoffset, lander->y);
+    //sprite_position(verticalThrust, lander->x, lander->y + verticalThrust->yoffset);
+    //sprite_position(leftThrust, lander->x + leftThrust->xoffset, lander->y);
+    //sprite_position(rightThrust, lander->x + rightThrust->xoffset, lander->y);
     
     if(button_pressed(BUTTON_A)) {
         verticalThrust->counter++;
