@@ -299,6 +299,10 @@ struct VerticalThrust {
     struct Sprite* sprite;
     int x, y;
     int xoffset, yoffset;
+    int frame; // which frame of animation is the thrust on
+    int animation_delay; // num of frames to wait before flipping
+    int counter; // how many frames until we flip
+    int active; // whether the thrust is active
 };
 
 // Struct for Left Thrust (on left side of lander)
@@ -306,6 +310,10 @@ struct LeftThrust {
     struct Sprite* sprite;
     int x, y;
     int xoffset, yoffset;
+    int frame; // which frame of animation is the thrust on
+    int animation_delay; // num of frames to wait before flipping
+    int counter; // how many frames until we flip
+    int active; // whether the thrust is active
 };
 
 // Struct for Right Thrust (on right side of lander)
@@ -313,6 +321,10 @@ struct RightThrust {
     struct Sprite* sprite;
     int x, y;
     int xoffset, yoffset;
+    int frame; // which frame of animation is the thrust on
+    int animation_delay; // num of frames to wait before flipping
+    int counter; // how many frames until we flip
+    int active; // whether the thrust is active
 };
 
 // Struct for characters
@@ -415,24 +427,42 @@ void landerReset(struct Lander* lander) {
     lander->frame = 0;
 }
 
-void thrust_init(struct VerticalThrust* verticalThrust, struct LeftThrust* leftThrust, struct RightThrust rightThrust) {
+void thrust_init(struct VerticalThrust* verticalThrust, struct LeftThrust* leftThrust, struct RightThrust* rightThrust, struct Lander* lander) {
     //TODO add offset from value0
-    /*
-    verticalThrust->x = 0;
-    veritcalThrust->y = 0;
+    
     verticalThrust->xoffset = 0;
-    verticalThrust->yoffset = 0;
+    verticalThrust->yoffset = 8;
+    verticalThrust->x = lander->x;
+    verticalThrust->y = lander->y + verticalThrust->yoffset;
+    verticalThrust->frame = 0;
+    verticalThrust->animation_delay = 8; 
+    verticalThrust->counter = 0;
+    verticalThrust->active = 0;
 
-    leftThrust->x = 0;
-    leftThrust->y = 0;
-    leftThrust->xoffset = 0;
+    verticalThrust->sprite = sprite_init(verticalThrust->x, verticalThrust->y, SIZE_8_8, 0, 0, 14,1);
+
+    leftThrust->xoffset = -8;
     leftThrust->yoffset = 0;
+    leftThrust->x = lander->x + leftThrust->xoffset;
+    leftThrust->y = lander->y + leftThrust->yoffset;
+    leftThrust->frame = 0;
+    leftThrust->animation_delay = 8;
+    leftThrust->counter = 0;
+    leftThrust->active = 0; 
 
-    rightThrust->x = 0;
-    rightThrust->y = 0;
-    rightThrust->xoffset = 0;
+    leftThrust->sprite = sprite_init(leftThrust->x, leftThrust->y, SIZE_8_8, 1, 0, 10, 1);
+
+    rightThrust->xoffset = 8;
     rightThrust->yoffset = 0;
-    */
+    rightThrust->x = lander->x + rightThrust->xoffset;
+    rightThrust->y = lander->y + rightThrust->yoffset;
+    rightThrust->frame = 0;
+    rightThrust->animation_delay = 8;
+    rightThrust->counter = 0;
+    rightThrust->active = 0;
+
+    rightThrust->sprite = sprite_init(rightThrust->x, rightThrust->y, SIZE_8_8, 0, 0, 10, 1);
+
 }
 
 // Checks if the lander is at the bottom of the map, if so return true
@@ -574,7 +604,6 @@ void lander_update(struct Lander* lander, int* yscroll , int* xscroll) {
     
     // Set lander sprite on the screen position
     sprite_position(lander->sprite, lander->x, lander->y);
-
     
    
 }
@@ -616,6 +645,12 @@ int main() {
     // Initialize lander
     struct Lander lander;
     lander_init(&lander);
+
+    //Initialize Thruster
+    struct VerticalThrust verticalThrust;
+    struct LeftThrust leftThrust;
+    struct RightThrust rightThrust;
+    thrust_init(&verticalThrust, &leftThrust, &rightThrust, &lander);
 
     // Initialize UI
     struct UI ui;
