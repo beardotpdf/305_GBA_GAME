@@ -430,7 +430,6 @@ void landerReset(struct Lander* lander) {
 }
 
 void thrust_init(struct VerticalThrust* verticalThrust, struct LeftThrust* leftThrust, struct RightThrust* rightThrust, struct Lander* lander) {
-    //TODO add offset from value0
     
     verticalThrust->xoffset = 0;
     verticalThrust->yoffset = 8;
@@ -441,7 +440,7 @@ void thrust_init(struct VerticalThrust* verticalThrust, struct LeftThrust* leftT
     verticalThrust->counter = 0;
     verticalThrust->active = 0;
 
-    verticalThrust->sprite = sprite_init(verticalThrust->x, verticalThrust->y, SIZE_8_8, 0, 0, 14,1);
+    verticalThrust->sprite = sprite_init(verticalThrust->x, verticalThrust->y, SIZE_8_8, 0, 0, 8,1);
 
     leftThrust->xoffset = -8;
     leftThrust->yoffset = 0;
@@ -452,7 +451,7 @@ void thrust_init(struct VerticalThrust* verticalThrust, struct LeftThrust* leftT
     leftThrust->counter = 0;
     leftThrust->active = 0; 
 
-    leftThrust->sprite = sprite_init(leftThrust->x, leftThrust->y, SIZE_8_8, 1, 0, 10, 1);
+    leftThrust->sprite = sprite_init(leftThrust->x, leftThrust->y, SIZE_8_8, 1, 0, 8, 1);
 
     rightThrust->xoffset = 8;
     rightThrust->yoffset = 0;
@@ -463,7 +462,7 @@ void thrust_init(struct VerticalThrust* verticalThrust, struct LeftThrust* leftT
     rightThrust->counter = 0;
     rightThrust->active = 0;
 
-    rightThrust->sprite = sprite_init(rightThrust->x, rightThrust->y, SIZE_8_8, 0, 0, 10, 1);
+    rightThrust->sprite = sprite_init(rightThrust->x, rightThrust->y, SIZE_8_8, 0, 0, 8, 1);
 
 }
 
@@ -559,7 +558,7 @@ int checkCollision(struct Lander* lander, int* xscroll, int* yscroll) {
 }
 
 // Updates the lander
-void lander_update(struct Lander* lander, int* yscroll , int* xscroll) {
+void lander_update(struct Lander* lander, int* yscroll , int* xscroll, struct VerticalThrust* verticalThrust, struct LeftThrust* leftThrust, struct RightThrust* rightThrust) {
     // Update position of lander
     if (!lander->landed) {
       	// If lander at bottom or top of background, stop scrolling and move lander by changing y value. If false, continue scrolling.
@@ -598,6 +597,7 @@ void lander_update(struct Lander* lander, int* yscroll , int* xscroll) {
     if (lander->landed > 60) {
         // TODO: reset lander position, velocity, landed
         landerReset(lander);
+        thrust_init(&lander, &verticalThrust, &leftThrust, &rightThrust);
 
         *xscroll = lander->x;
         *yscroll = lander->y - 20;
@@ -609,9 +609,9 @@ void lander_update(struct Lander* lander, int* yscroll , int* xscroll) {
 
 // Update thrust sprites
 void thrust_update(struct Lander* lander, struct VerticalThrust* verticalThrust, struct LeftThrust* leftThrust, struct RightThrust* rightThrust) {
-    sprite_position(verticalThrust, lander->x, lander->y + verticalThrust->yoffset);
-    sprite_position(leftThrust, lander->x + leftThrust->xoffset, lander->y);
-    sprite_position(rightThrust, lander->x + rightThrust->xoffset, lander->y);
+    sprite_position(verticalThrust->sprite, lander->x, (lander->y + verticalThrust->yoffset));
+    sprite_position(leftThrust->sprite, (lander->x + leftThrust->xoffset), lander->y);
+    sprite_position(rightThrust->sprite, (lander->x + rightThrust->xoffset), lander->y);
     
     if(button_pressed(BUTTON_A)) {
         verticalThrust->counter++;
@@ -620,7 +620,7 @@ void thrust_update(struct Lander* lander, struct VerticalThrust* verticalThrust,
             if (verticalThrust->frame > 16) {
                 verticalThrust->frame = 0;
             }
-            //TODO SET NEW SPRITE
+            sprite_set_offset(verticalThrust->sprite, 14); 
             verticalThrust->counter = 0;
         }
     }
@@ -632,7 +632,7 @@ void thrust_update(struct Lander* lander, struct VerticalThrust* verticalThrust,
             if (leftThrust->frame > 16) {
                 leftThrust->frame = 0;
             }
-            //TODO SET NEW SPRITE
+            sprite_set_offset(leftThrust->sprite, 10); 
             leftThrust->counter = 0;
         }
     }
@@ -644,7 +644,7 @@ void thrust_update(struct Lander* lander, struct VerticalThrust* verticalThrust,
             if (rightThrust->frame > 16) {
                 rightThrust->frame = 0;
             }
-            //TODO SET NEW SPRITE
+            sprite_set_offset(rightThrust->sprite, 10); 
             rightThrust->counter = 0;
         }
     }
@@ -707,8 +707,8 @@ int main() {
 	// Update UI
 	UI_update(&ui, &lander);
 	// Update the lander
-	lander_update(&lander, &yscroll, &xscroll);
-
+	lander_update(&lander, &yscroll, &xscroll, &verticalThrust, &leftThrust, &rightThrust);
+    thrust_update(&lander, &verticalThrust, &leftThrust, &rightThrust);
 	// Move lander up if A button is pressed
 	if (button_pressed(BUTTON_A)) {
 	    lander_ascend(&lander);
